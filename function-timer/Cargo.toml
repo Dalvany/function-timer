@@ -1,6 +1,6 @@
 [package]
 name = "function-timer"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 authors = ["dalvany"]
 description = "Macro that allow to time a function and emit a metric using metrics crate"
@@ -18,7 +18,7 @@ keywords = ["macro", "metrics", "instrument"]
 name = "test_time"
 
 [dependencies]
-function-timer-macro = { path = "../function-timer-macro"}
+function-timer-macro = { version = "0.1", path = "../function-timer-macro"}
 metrics = "0.20"
 
 [dev-dependencies]
