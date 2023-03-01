@@ -1,3 +1,4 @@
+//! `time` macro. It can place on any function.
 use proc_macro::TokenStream;
 
 use quote::quote;
