@@ -12,6 +12,14 @@ on:
           - major
           - minor
           - patch
+      crate:
+        description: 'Crate to release'
+        required: true
+        default: 'function-timer-macro'
+        type: choice
+        options:
+          - function-timer-macro
+          - function-timer
 
 jobs:
   release:
@@ -28,11 +36,13 @@ jobs:
       - name: Install
         run: cargo install cargo-edit
       - name: Bump new version
-        run: cargo set-version --bump ${{ github.event.inputs.release_type }}
-      - name: Save version to be reuse in subsequent runs
         run: |
-          export VERSION=`cargo tree --depth 0 | grep rphonetic | awk '{print $2}'`
+          cargo set-version -p ${{ github.event.inputs.crate }} --bump ${{ github.event.inputs.release_type }}
+          export VERSION=`cargo tree -p ${{ github.event.inputs.crate }} --depth 0 | grep ${{ github.event.inputs.crate }} | awk '{print $2}'`
           echo "VERSION=$VERSION"  >> $GITHUB_ENV
+          if [[ ${{ github.event.inputs.release_type }} != "patch" ]] && [[ ${{ github.event.inputs.crate }} == "function-timer-macro" ]]; then
+            cargo set-version -p function-timer --bump ${{ github.event.inputs.release_type }}
+          fi
       - name: Commit new version
         run: |
           git config user.name "$env.GITHUB_ACTOR"
@@ -47,7 +57,11 @@ jobs:
         shell: bash
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish
+        run: |
+          cargo publish -p ${{ github.event.inputs.crate }}
+          if [[ ${{ github.event.inputs.release_type }} != "patch" ]] && [[ ${{ github.event.inputs.crate }} == "function-timer-macro" ]]; then
+            cargo publish -p function-timer
+          fi
       - name: Check
         run: cat Cargo.toml
 
