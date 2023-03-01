@@ -54,7 +54,6 @@ impl Fold for MetricName {
     }
 }
 
-#[derive(Clone)]
 enum ImplOrFn {
     Function(ItemFn),
 }
