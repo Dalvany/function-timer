@@ -1,0 +1,2 @@
+[workspace]
+members = ["function-timer", "function-timer-macro"]

@@ -1,0 +1,24 @@
+[package]
+name = "function-timer"
+version = "0.1.0"
+edition = "2021"
+authors = ["dalvany"]
+description = "Macro that allow to time a function and emit a metric using metrics crate"
+repository = "https://github.com/Dalvany/function-timer"
+homepage = "https://github.com/Dalvany/function-timer"
+documentation = "https://docs.rs/function-timer"
+readme = "../README.md"
+license = "MIT OR Apache-2.0"
+categories = ["development-tools::profiling"]
+keywords = ["macro", "metrics", "instrument"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+function-timer-macro = { path = "../function-timer-macro"}
+metrics = "0.20"
+
+[dev-dependencies]
+trybuild = "1.0"
+metrics-util = "0.14"
+metrics-exporter-prometheus = { version = "0.11", default-feature = false }
