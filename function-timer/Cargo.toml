@@ -15,7 +15,10 @@ keywords = ["macro", "metrics", "instrument"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[test]]
-name = "test_time"
+name = "test_time_function"
+
+[[test]]
+name = "test_time_struct"
 
 [dependencies]
 function-timer-macro = { version = "0.1", path = "../function-timer-macro"}
