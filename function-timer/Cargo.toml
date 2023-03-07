@@ -20,6 +20,12 @@ name = "test_time_function"
 [[test]]
 name = "test_time_struct"
 
+[[test]]
+name = "test_time_ident"
+
+[[test]]
+name = "test_time_fail"
+
 [dependencies]
 function-timer-macro = { version = "0.2", path = "../function-timer-macro"}
 metrics = "0.20"

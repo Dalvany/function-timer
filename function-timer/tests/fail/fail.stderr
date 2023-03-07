@@ -1,0 +1,11 @@
+error: Expected literal or identifier
+ --> tests/fail/fail.rs:6:12
+  |
+6 |     #[time(struct)]
+  |            ^^^^^^
+
+error[E0601]: `main` function not found in crate `$CRATE`
+ --> tests/fail/fail.rs:8:2
+  |
+8 | }
+  |  ^ consider adding a `main` function to `$DIR/tests/fail/fail.rs`
