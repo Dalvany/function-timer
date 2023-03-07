@@ -1,9 +1,9 @@
-use std::error::Error;
-use std::time::Duration;
-use metrics::Label;
 use function_timer::time;
+use metrics::Label;
 use metrics_util::debugging::{DebugValue, Snapshotter};
 use metrics_util::MetricKind;
+use std::error::Error;
+use std::time::Duration;
 
 struct Test {}
 
@@ -19,9 +19,9 @@ impl Test {
     }
 
     #[time("another_metric")]
-    pub fn impl_fail_function(&self, text:&str) -> Result<(), Box<dyn Error>>{
+    pub fn impl_fail_function(&self, text: &str) -> Result<(), Box<dyn Error>> {
         std::thread::sleep(Duration::from_secs(2));
-        let number:usize = text.parse()?;
+        let number: usize = text.parse()?;
         println!("{number}");
 
         Ok(())
@@ -34,9 +34,8 @@ pub fn free_function() {
 }
 
 #[test]
-fn test_time_free_function() -> Result<(), Box<dyn Error>>{
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread()
-        .install();
+fn test_time_free_function() -> Result<(), Box<dyn Error>> {
+    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     free_function();
 
@@ -57,9 +56,8 @@ fn test_time_free_function() -> Result<(), Box<dyn Error>>{
 }
 
 #[test]
-fn test_time_static_function() -> Result<(), Box<dyn Error>>{
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread()
-        .install();
+fn test_time_static_function() -> Result<(), Box<dyn Error>> {
+    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     Test::static_function();
 
@@ -80,11 +78,10 @@ fn test_time_static_function() -> Result<(), Box<dyn Error>>{
 }
 
 #[test]
-fn test_time_impl_function() -> Result<(), Box<dyn Error>>{
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread()
-        .install();
+fn test_time_impl_function() -> Result<(), Box<dyn Error>> {
+    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
-    let t = Test{};
+    let t = Test {};
     t.impl_function();
 
     let snapshot = Snapshotter::current_thread_snapshot();
@@ -98,18 +95,16 @@ fn test_time_impl_function() -> Result<(), Box<dyn Error>>{
         assert_eq!(name.as_str(), "my_metric");
         assert_eq!(labels, vec![Label::new("function", "impl_function")]);
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
-
     }
 
     Ok(())
 }
 
 #[test]
-fn test_time_impl_fail_function() -> Result<(), Box<dyn Error>>{
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread()
-        .install();
+fn test_time_impl_fail_function() -> Result<(), Box<dyn Error>> {
+    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
-    let t = Test{};
+    let t = Test {};
     let _ = t.impl_fail_function("azerty");
 
     let snapshot = Snapshotter::current_thread_snapshot();
@@ -123,7 +118,6 @@ fn test_time_impl_fail_function() -> Result<(), Box<dyn Error>>{
         assert_eq!(name.as_str(), "another_metric");
         assert_eq!(labels, vec![Label::new("function", "impl_fail_function")]);
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
-
     }
 
     Ok(())

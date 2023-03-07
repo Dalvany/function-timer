@@ -6,13 +6,18 @@ use syn::fold::Fold;
 use syn::parse::{Parse, ParseStream};
 use syn::token::Impl;
 use syn::{
-    parse_macro_input, Attribute, Block, Expr, ExprBlock, ImplItem, ImplItemMethod, ItemFn,
+    parse_macro_input, Attribute, Block, Expr, ExprBlock, Ident, ImplItem, ImplItemMethod, ItemFn,
     ItemImpl, LitStr, Stmt, Type,
 };
 
+enum Name {
+    Literal(LitStr),
+    Ident(Ident),
+}
+
 struct MetricName {
     struct_name: Option<String>,
-    name: LitStr,
+    name: Name,
 }
 
 impl MetricName {
@@ -28,7 +33,10 @@ impl MetricName {
     fn block_from(&self, block: Block, function_name: String) -> Block {
         let mut statements: Vec<Stmt> = Vec::with_capacity(2);
 
-        let metric_name = self.name.value();
+        let metric_name = match &self.name {
+            Name::Literal(lit) => quote!(#lit),
+            Name::Ident(ident) => quote!(#ident),
+        };
         let st = self.struct_name.clone();
 
         let macro_stmt = if let Some(st) = st {
@@ -58,7 +66,15 @@ impl MetricName {
 
 impl Parse for MetricName {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let name: LitStr = input.parse()?;
+        let lookahead = input.lookahead1();
+        let name =
+            if lookahead.peek(LitStr) {
+                Name::Literal(input.parse()?)
+            } else {
+                Name::Ident(input.parse().map_err(|error| {
+                    syn::Error::new(error.span(), "Expected literal or identifier")
+                })?)
+            };
 
         Ok(Self {
             struct_name: None,
