@@ -13,7 +13,7 @@ impl Test {
         std::thread::sleep(Duration::from_secs(2));
     }
 
-    #[time("should_be_timed_twice")]
+    #[time("other_metric")]
     pub fn static_function() {
         std::thread::sleep(Duration::from_secs(2));
     }
@@ -56,14 +56,8 @@ fn test_time_static_function() -> Result<(), Box<dyn Error>> {
         let (kind, key) = key.into_parts();
         let (name, labels) = key.into_parts();
         assert_eq!(kind, MetricKind::Histogram);
-        assert_eq!(name.as_str(), "my_metric");
-        assert_eq!(
-            labels,
-            vec![
-                Label::new("struct", "Test"),
-                Label::new("function", "static_function")
-            ]
-        );
+        assert_eq!(name.as_str(), "other_metric");
+        assert_eq!(labels, vec![Label::new("function", "static_function")]);
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
     }
 

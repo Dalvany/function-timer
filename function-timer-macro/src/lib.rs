@@ -1,18 +1,39 @@
 //! `time` macro. It can place on any function.
 use proc_macro::TokenStream;
+use proc_macro2::Span;
 
 use quote::quote;
 use syn::fold::Fold;
 use syn::parse::{Parse, ParseStream};
+use syn::spanned::Spanned;
 use syn::token::Impl;
 use syn::{
     parse_macro_input, Attribute, Block, Expr, ExprBlock, Ident, ImplItem, ImplItemMethod, ItemFn,
     ItemImpl, LitStr, Stmt, Type,
 };
 
+mod custom_keywords {
+    syn::custom_keyword!(disable);
+}
+
 enum Name {
     Literal(LitStr),
     Ident(Ident),
+    Disable(custom_keywords::disable),
+}
+
+impl Name {
+    fn disable(&self) -> bool {
+        matches!(self, Name::Disable(_))
+    }
+
+    fn span(&self) -> Span {
+        match self {
+            Self::Literal(lit) => lit.span(),
+            Self::Ident(ident) => ident.span(),
+            Self::Disable(tok) => tok.span(),
+        }
+    }
 }
 
 struct MetricName {
@@ -21,21 +42,19 @@ struct MetricName {
 }
 
 impl MetricName {
-    fn remove_time_attribut(attributs: Vec<Attribute>) -> Vec<Attribute> {
-        attributs
-            .into_iter()
-            .filter(|attr| {
-                attr.path.segments.last().map(|i| i.ident.to_string()) != Some("time".to_string())
-            })
-            .collect()
+    /// Find if there's any overriden time attribute.
+    fn any_time_attribut(attributs: &[Attribute]) -> bool {
+        attributs.iter().any(|attr| {
+            attr.path.segments.last().map(|i| i.ident.to_string()) == Some("time".to_string())
+        })
     }
 
     fn block_from(&self, block: Block, function_name: String) -> Block {
-        let mut statements: Vec<Stmt> = Vec::with_capacity(2);
-
         let metric_name = match &self.name {
             Name::Literal(lit) => quote!(#lit),
             Name::Ident(ident) => quote!(#ident),
+            // Early return the block as it shouldn't change (disable)
+            Name::Disable(_) => return block,
         };
         let st = self.struct_name.clone();
 
@@ -48,6 +67,8 @@ impl MetricName {
                 let _guard = function_timer::FunctionTimer::new(#metric_name, None, #function_name);
             )
         };
+        let mut statements: Vec<Stmt> = Vec::with_capacity(2);
+
         let macro_stmt: Stmt = syn::parse2(macro_stmt).expect("Can't parse token");
         statements.push(macro_stmt);
 
@@ -68,7 +89,9 @@ impl Parse for MetricName {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let lookahead = input.lookahead1();
         let name =
-            if lookahead.peek(LitStr) {
+            if lookahead.peek(custom_keywords::disable) {
+                Name::Disable(input.parse::<custom_keywords::disable>()?)
+            } else if lookahead.peek(LitStr) {
                 Name::Literal(input.parse()?)
             } else {
                 Name::Ident(input.parse().map_err(|error| {
@@ -85,14 +108,15 @@ impl Parse for MetricName {
 
 impl Fold for MetricName {
     fn fold_impl_item_method(&mut self, i: ImplItemMethod) -> ImplItemMethod {
-        let mut result = i.clone();
+        // If there's a time attribut it override the impl one.
+        // This also allow to handle disable
+        if Self::any_time_attribut(&i.attrs) {
+            return i;
+        }
 
+        let mut result = i.clone();
         let block = i.block;
         let name = i.sig.ident.to_string();
-
-        let new_attr = Self::remove_time_attribut(i.attrs);
-        result.attrs = new_attr;
-
         let new_block = self.block_from(block, name);
         result.block = new_block;
 
@@ -135,6 +159,12 @@ enum ImplOrFn {
     ImplStruct(ItemImpl),
 }
 
+impl ImplOrFn {
+    fn is_impl(&self) -> bool {
+        matches!(self, ImplOrFn::ImplStruct(_))
+    }
+}
+
 impl Parse for ImplOrFn {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let lookahead = input.lookahead1();
@@ -155,6 +185,12 @@ impl Parse for ImplOrFn {
 pub fn time(attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut args = parse_macro_input!(attr as MetricName);
     let input = parse_macro_input!(item as ImplOrFn);
+
+    if args.name.disable() && input.is_impl() {
+        return syn::Error::new(args.name.span(), "You can't disable a whole impl block")
+            .into_compile_error()
+            .into();
+    }
 
     match input {
         ImplOrFn::Function(item_fn) => {

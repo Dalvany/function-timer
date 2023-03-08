@@ -1,0 +1,11 @@
+error: You can't disable a whole impl block
+ --> tests/fail/fail_disable_struct.rs:5:8
+  |
+5 | #[time(disable)]
+  |        ^^^^^^^
+
+error[E0601]: `main` function not found in crate `$CRATE`
+ --> tests/fail/fail_disable_struct.rs:8:2
+  |
+8 | }
+  |  ^ consider adding a `main` function to `$DIR/tests/fail/fail_disable_struct.rs`

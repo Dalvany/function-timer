@@ -26,6 +26,9 @@ name = "test_time_ident"
 [[test]]
 name = "test_time_fail"
 
+[[test]]
+name = "test_time_disable"
+
 [dependencies]
 function-timer-macro = { version = "0.3", path = "../function-timer-macro"}
 metrics = "0.20"
