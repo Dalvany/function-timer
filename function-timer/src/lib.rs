@@ -6,7 +6,10 @@
 //! In case the annotation is on an `impl` block :
 //! * all method will be timed
 //! * there will be a tag `struct` with the struct name.
-//! * all `time` annotations on any method will be ignored.
+//! * all `time` annotations on any method will override the one on `impl` block.
+//! * it's possible to disable specific methods using `#[time(disable)]`.
+//!
+//! Note that `#[time(disable)]` can't be on an `impl` block.
 //!
 //! # Example
 //!
@@ -78,6 +81,7 @@
 //!
 //! #[time("my_metric")]
 //! impl Test {
+//!     #[time("override_my_metric")]
 //!     pub fn impl_function(&self) {
 //!         println!("This another test");
 //!     }
