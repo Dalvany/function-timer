@@ -1,6 +1,6 @@
-use std::error::Error;
-use metrics_exporter_prometheus::PrometheusBuilder;
 use function_timer::time;
+use metrics_exporter_prometheus::PrometheusBuilder;
+use std::error::Error;
 
 struct Test {}
 
@@ -11,8 +11,8 @@ impl Test {
     }
 
     #[time("another_metric")]
-    pub fn impl_fail_function(&self, text:&str) -> Result<(), Box<dyn Error>>{
-        let number:usize = text.parse()?;
+    pub fn impl_fail_function(&self, text: &str) -> Result<(), Box<dyn Error>> {
+        let number: usize = text.parse()?;
         println!("{number}");
 
         Ok(())
@@ -44,7 +44,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     assert!(result.is_err());
     let result = t.impl_fail_function("1");
     assert!(result.is_ok());
-
 
     println!("{}", handle.render());
 
