@@ -8,8 +8,8 @@ use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::token::Impl;
 use syn::{
-    parse_macro_input, Attribute, Block, Expr, ExprBlock, Ident, ImplItem, ImplItemMethod, ItemFn,
-    ItemImpl, LitStr, Stmt, Type,
+    parse_macro_input, Attribute, Block, Expr, ExprBlock, Ident, ImplItem, ImplItemFn, ItemFn,
+    ItemImpl, LitStr, Meta, Stmt, Type,
 };
 
 mod custom_keywords {
@@ -42,10 +42,16 @@ struct MetricName {
 }
 
 impl MetricName {
-    /// Find if there's any overriden time attribute.
+    /// Find if there's any override time attribute.
     fn any_time_attribut(attributs: &[Attribute]) -> bool {
         attributs.iter().any(|attr| {
-            attr.path.segments.last().map(|i| i.ident.to_string()) == Some("time".to_string())
+            if let Meta::Path(path) = &attr.meta {
+                path.segments.last().map(|i| i.ident.to_string()) == Some("time".to_string())
+            } else if let Meta::List(list) = &attr.meta {
+                list.path.segments.last().map(|i| i.ident.to_string()) == Some("time".to_string())
+            } else {
+                false
+            }
         })
     }
 
@@ -72,11 +78,14 @@ impl MetricName {
         let macro_stmt: Stmt = syn::parse2(macro_stmt).expect("Can't parse token");
         statements.push(macro_stmt);
 
-        statements.push(Stmt::Expr(Expr::Block(ExprBlock {
-            attrs: vec![],
-            label: None,
-            block,
-        })));
+        statements.push(Stmt::Expr(
+            Expr::Block(ExprBlock {
+                attrs: vec![],
+                label: None,
+                block,
+            }),
+            None,
+        ));
 
         Block {
             brace_token: Default::default(),
@@ -107,7 +116,7 @@ impl Parse for MetricName {
 }
 
 impl Fold for MetricName {
-    fn fold_impl_item_method(&mut self, i: ImplItemMethod) -> ImplItemMethod {
+    fn fold_impl_item_fn(&mut self, i: ImplItemFn) -> ImplItemFn {
         // If there's a time attribut it override the impl one.
         // This also allow to handle disable
         if Self::any_time_attribut(&i.attrs) {
@@ -143,8 +152,8 @@ impl Fold for MetricName {
             self.struct_name = p.path.segments.last().map(|p| p.ident.to_string());
         }
         for item in i.items {
-            if let ImplItem::Method(method) = item {
-                new_items.push(ImplItem::Method(self.fold_impl_item_method(method)));
+            if let ImplItem::Fn(method) = item {
+                new_items.push(ImplItem::Fn(self.fold_impl_item_fn(method)));
             } else {
                 new_items.push(item);
             }
