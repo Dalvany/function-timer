@@ -31,9 +31,9 @@ name = "test_time_disable"
 
 [dependencies]
 function-timer-macro = { version = "0.5", path = "../function-timer-macro"}
-metrics = "0.20"
+metrics = "0.21"
 
 [dev-dependencies]
 trybuild = "1.0"
-metrics-util = "0.14"
-metrics-exporter-prometheus = { version = "0.11", default-features = false }
+metrics-util = "0.15"
+metrics-exporter-prometheus = { version = "0.12", default-features = false }
