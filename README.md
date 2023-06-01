@@ -8,8 +8,13 @@
 
 # Function timer
 
-Macro that allow to time a function and emit a histogram metric
+Macro that allows to time a function and emit a histogram metric
 using [metrics](https://crates.io/crates/metrics) crate.
+
+Note: with the use of another attribut macro, declaration order might matter.
+Especially using [async-trait](https://crates.io/crates/async-trait), depending on which one is first, you
+time the actual execution of the function if time macro is declared before, or the creation of the future if
+it's declared after.
 
 ## Example
 
