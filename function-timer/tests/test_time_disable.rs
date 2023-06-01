@@ -2,7 +2,6 @@ use function_timer::time;
 use metrics::Label;
 use metrics_util::debugging::{DebugValue, Snapshotter};
 use metrics_util::MetricKind;
-use std::error::Error;
 use std::time::Duration;
 
 struct Test {}
@@ -20,7 +19,7 @@ impl Test {
 }
 
 #[test]
-fn test_time_disable() -> Result<(), Box<dyn Error>> {
+fn test_time_disable() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     let test = Test {};
@@ -43,6 +42,4 @@ fn test_time_disable() -> Result<(), Box<dyn Error>> {
         );
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
     }
-
-    Ok(())
 }

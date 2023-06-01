@@ -9,16 +9,16 @@ struct Test {}
 
 #[time("my_metric")]
 impl Test {
-    pub fn impl_function(&self) {
+    pub async fn impl_function(&self) {
         std::thread::sleep(Duration::from_secs(2));
     }
 
     #[time("other_metric")]
-    pub fn static_function() {
+    pub async fn static_function() {
         std::thread::sleep(Duration::from_secs(2));
     }
 
-    pub fn impl_fail_function(&self, text: &str) -> Result<(), Box<dyn Error>> {
+    pub async fn impl_fail_function(&self, text: &str) -> Result<(), Box<dyn Error>> {
         std::thread::sleep(Duration::from_secs(2));
         let number: usize = text.parse()?;
         println!("{number}");
@@ -27,26 +27,11 @@ impl Test {
     }
 }
 
-trait MyTrait {
-    type Output;
-
-    fn trait_function(&self) -> Self::Output;
-}
-
-#[time("trait_metric")]
-impl MyTrait for Test {
-    type Output = &'static str;
-
-    fn trait_function(&self) -> Self::Output {
-        "test"
-    }
-}
-
-#[test]
-fn test_time_static_function() {
+#[futures_test::test]
+async fn test_time_static_function() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
-    Test::static_function();
+    Test::static_function().await;
 
     let snapshot = Snapshotter::current_thread_snapshot();
     assert!(snapshot.is_some(), "No snapshot");
@@ -62,12 +47,12 @@ fn test_time_static_function() {
     }
 }
 
-#[test]
-fn test_time_impl_function() {
+#[futures_test::test]
+async fn test_time_impl_function() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     let t = Test {};
-    t.impl_function();
+    t.impl_function().await;
 
     let snapshot = Snapshotter::current_thread_snapshot();
     assert!(snapshot.is_some(), "No snapshot");
@@ -89,12 +74,12 @@ fn test_time_impl_function() {
     }
 }
 
-#[test]
-fn test_time_impl_fail_function() {
+#[futures_test::test]
+async fn test_time_impl_fail_function() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     let t = Test {};
-    let _ = t.impl_fail_function("azerty");
+    let _ = t.impl_fail_function("azerty").await;
 
     let snapshot = Snapshotter::current_thread_snapshot();
     assert!(snapshot.is_some(), "No snapshot");
@@ -110,33 +95,6 @@ fn test_time_impl_fail_function() {
             vec![
                 Label::new("struct", "Test"),
                 Label::new("function", "impl_fail_function")
-            ]
-        );
-        assert!(matches!(debug_value, DebugValue::Histogram(_)));
-    }
-}
-
-#[test]
-fn test_time_impl_trait() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
-
-    let t = Test {};
-    let _ = t.trait_function();
-
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
-
-    for (key, _, _, debug_value) in metrics {
-        let (kind, key) = key.into_parts();
-        let (name, labels) = key.into_parts();
-        assert_eq!(kind, MetricKind::Histogram);
-        assert_eq!(name.as_str(), "trait_metric");
-        assert_eq!(
-            labels,
-            vec![
-                Label::new("struct", "Test"),
-                Label::new("function", "trait_function")
             ]
         );
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
