@@ -29,6 +29,9 @@ name = "test_time_fail"
 [[test]]
 name = "test_time_disable"
 
+[[test]]
+name = "test_async_function"
+
 [dependencies]
 function-timer-macro = { version = "0.5", path = "../function-timer-macro"}
 metrics = "0.21"
@@ -37,3 +40,4 @@ metrics = "0.21"
 trybuild = "1.0"
 metrics-util = "0.15"
 metrics-exporter-prometheus = { version = "0.12", default-features = false }
+futures-test = "0.3"

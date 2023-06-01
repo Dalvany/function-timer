@@ -34,7 +34,7 @@ pub fn free_function() {
 }
 
 #[test]
-fn test_time_free_function() -> Result<(), Box<dyn Error>> {
+fn test_time_free_function() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     free_function();
@@ -51,12 +51,10 @@ fn test_time_free_function() -> Result<(), Box<dyn Error>> {
         assert_eq!(labels, vec![Label::new("function", "free_function")]);
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
     }
-
-    Ok(())
 }
 
 #[test]
-fn test_time_static_function() -> Result<(), Box<dyn Error>> {
+fn test_time_static_function() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     Test::static_function();
@@ -73,12 +71,10 @@ fn test_time_static_function() -> Result<(), Box<dyn Error>> {
         assert_eq!(labels, vec![Label::new("function", "static_function")]);
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
     }
-
-    Ok(())
 }
 
 #[test]
-fn test_time_impl_function() -> Result<(), Box<dyn Error>> {
+fn test_time_impl_function() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     let t = Test {};
@@ -96,12 +92,10 @@ fn test_time_impl_function() -> Result<(), Box<dyn Error>> {
         assert_eq!(labels, vec![Label::new("function", "impl_function")]);
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
     }
-
-    Ok(())
 }
 
 #[test]
-fn test_time_impl_fail_function() -> Result<(), Box<dyn Error>> {
+fn test_time_impl_fail_function() {
     let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
 
     let t = Test {};
@@ -119,6 +113,4 @@ fn test_time_impl_fail_function() -> Result<(), Box<dyn Error>> {
         assert_eq!(labels, vec![Label::new("function", "impl_fail_function")]);
         assert!(matches!(debug_value, DebugValue::Histogram(_)));
     }
-
-    Ok(())
 }

@@ -1,7 +1,7 @@
 //! `time` macro. It can place on any function.
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 
+use proc_macro2::Span;
 use quote::quote;
 use syn::fold::Fold;
 use syn::parse::{Parse, ParseStream};
@@ -117,8 +117,8 @@ impl Parse for MetricName {
 
 impl Fold for MetricName {
     fn fold_impl_item_fn(&mut self, i: ImplItemFn) -> ImplItemFn {
-        // If there's a time attribut it override the impl one.
-        // This also allow to handle disable
+        // If there's a time attribut, it overrides the impl one.
+        // This also allows handling to disable
         if Self::any_time_attribut(&i.attrs) {
             return i;
         }
@@ -176,11 +176,15 @@ impl ImplOrFn {
 
 impl Parse for ImplOrFn {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let lookahead = input.lookahead1();
-        if lookahead.peek(Impl) {
-            Ok(Self::ImplStruct(input.parse()?))
+        let attrs = input.call(Attribute::parse_outer)?;
+        if input.peek(Impl) {
+            let mut item: ItemImpl = input.parse()?;
+            item.attrs = attrs;
+            Ok(Self::ImplStruct(item))
         } else {
-            Ok(Self::Function(input.parse()?))
+            let mut item: ItemFn = input.parse()?;
+            item.attrs = attrs;
+            Ok(Self::Function(item))
         }
     }
 }
