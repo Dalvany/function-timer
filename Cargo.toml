@@ -1,2 +1,3 @@
 [workspace]
 members = ["function-timer", "function-timer-macro"]
+resolver = "2"

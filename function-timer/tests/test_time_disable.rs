@@ -1,6 +1,6 @@
 use function_timer::time;
 use metrics::Label;
-use metrics_util::debugging::{DebugValue, Snapshotter};
+use metrics_util::debugging::DebugValue;
 use metrics_util::MetricKind;
 use std::time::Duration;
 
@@ -20,16 +20,16 @@ impl Test {
 
 #[test]
 fn test_time_disable() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    let test = Test {};
+    metrics::with_local_recorder(&recorder, || {
+        let test = Test {};
 
-    test.disable();
-    test.test();
+        test.disable();
+        test.test();
+    });
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();

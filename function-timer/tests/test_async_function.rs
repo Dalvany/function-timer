@@ -1,6 +1,6 @@
 use function_timer::time;
 use metrics::Label;
-use metrics_util::debugging::{DebugValue, Snapshotter};
+use metrics_util::debugging::DebugValue;
 use metrics_util::MetricKind;
 use std::error::Error;
 use std::time::Duration;
@@ -29,13 +29,14 @@ impl Test {
 
 #[futures_test::test]
 async fn test_time_static_function() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    Test::static_function().await;
+    metrics::with_local_recorder(&recorder, || async {
+        Test::static_function().await;
+    })
+    .await;
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();
@@ -49,14 +50,15 @@ async fn test_time_static_function() {
 
 #[futures_test::test]
 async fn test_time_impl_function() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    let t = Test {};
-    t.impl_function().await;
+    metrics::with_local_recorder(&recorder, || async {
+        let t = Test {};
+        t.impl_function().await;
+    })
+    .await;
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();
@@ -76,14 +78,15 @@ async fn test_time_impl_function() {
 
 #[futures_test::test]
 async fn test_time_impl_fail_function() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    let t = Test {};
-    let _ = t.impl_fail_function("azerty").await;
+    metrics::with_local_recorder(&recorder, || async {
+        let t = Test {};
+        let _ = t.impl_fail_function("azerty").await;
+    })
+    .await;
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();

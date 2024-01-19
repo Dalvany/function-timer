@@ -1,6 +1,6 @@
 use function_timer::time;
 use metrics::Label;
-use metrics_util::debugging::{DebugValue, Snapshotter};
+use metrics_util::debugging::DebugValue;
 use metrics_util::MetricKind;
 use std::error::Error;
 use std::time::Duration;
@@ -44,13 +44,13 @@ impl MyTrait for Test {
 
 #[test]
 fn test_time_static_function() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    Test::static_function();
+    metrics::with_local_recorder(&recorder, || {
+        Test::static_function();
+    });
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();
@@ -64,14 +64,14 @@ fn test_time_static_function() {
 
 #[test]
 fn test_time_impl_function() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    let t = Test {};
-    t.impl_function();
+    metrics::with_local_recorder(&recorder, || {
+        let t = Test {};
+        t.impl_function();
+    });
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();
@@ -91,14 +91,14 @@ fn test_time_impl_function() {
 
 #[test]
 fn test_time_impl_fail_function() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    let t = Test {};
-    let _ = t.impl_fail_function("azerty");
+    metrics::with_local_recorder(&recorder, || {
+        let t = Test {};
+        let _ = t.impl_fail_function("azerty");
+    });
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();
@@ -118,14 +118,14 @@ fn test_time_impl_fail_function() {
 
 #[test]
 fn test_time_impl_trait() {
-    let _ = metrics_util::debugging::DebuggingRecorder::per_thread().install();
+    let recorder = metrics_util::debugging::DebuggingRecorder::new();
 
-    let t = Test {};
-    let _ = t.trait_function();
+    metrics::with_local_recorder(&recorder, || {
+        let t = Test {};
+        let _ = t.trait_function();
+    });
 
-    let snapshot = Snapshotter::current_thread_snapshot();
-    assert!(snapshot.is_some(), "No snapshot");
-    let metrics = snapshot.unwrap().into_vec();
+    let metrics = recorder.snapshotter().snapshot().into_vec();
 
     for (key, _, _, debug_value) in metrics {
         let (kind, key) = key.into_parts();
