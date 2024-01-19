@@ -157,10 +157,11 @@ impl Drop for FunctionTimer {
     /// Get execution time and call [`histogram!`](histogram).
     fn drop(&mut self) {
         let d = self.chrono.elapsed();
-        if let Some(struct_name) = self.struct_name {
-            histogram!(self.metric_name, d, "struct" => struct_name, "function" => self.function);
+        let histogram = if let Some(struct_name) = self.struct_name {
+            histogram!(self.metric_name,  "struct" => struct_name, "function" => self.function)
         } else {
-            histogram!(self.metric_name, d, "function" => self.function);
-        }
+            histogram!(self.metric_name,  "function" => self.function)
+        };
+        histogram.record(d);
     }
 }

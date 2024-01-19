@@ -33,11 +33,11 @@ name = "test_time_disable"
 name = "test_async_function"
 
 [dependencies]
-function-timer-macro = { version = "0.5", path = "../function-timer-macro"}
-metrics = "0.21"
+function-timer-macro = { version = "0.5", path = "../function-timer-macro" }
+metrics = "0.22"
 
 [dev-dependencies]
 trybuild = "1.0"
-metrics-util = "0.15"
-metrics-exporter-prometheus = { version = "0.12", default-features = false }
+metrics-util = "0.16"
+metrics-exporter-prometheus = { version = "0.13", default-features = false }
 futures-test = "0.3"
