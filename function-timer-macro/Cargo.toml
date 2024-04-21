@@ -2,6 +2,7 @@
 name = "function-timer-macro"
 version = "0.6.0"
 edition = "2021"
+rust-version = "1.65.0"
 authors = ["dalvany"]
 description = "Macro that allow to time a function and emit a metric using metrics crate"
 repository = "https://github.com/Dalvany/function-timer"
@@ -20,4 +21,3 @@ proc-macro = true
 syn = { version = "2.0", features = ["full", "fold"] }
 proc-macro2 = "1.0"
 quote = "1.0"
-
