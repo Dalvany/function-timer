@@ -1,6 +1,7 @@
+use std::error::Error;
+
 use function_timer::time;
 use metrics_exporter_prometheus::PrometheusBuilder;
-use std::error::Error;
 
 struct Test {}
 

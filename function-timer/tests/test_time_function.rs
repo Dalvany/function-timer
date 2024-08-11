@@ -1,9 +1,10 @@
+use std::error::Error;
+use std::time::Duration;
+
 use function_timer::time;
 use metrics::Label;
 use metrics_util::debugging::DebugValue;
 use metrics_util::MetricKind;
-use std::error::Error;
-use std::time::Duration;
 
 struct Test {}
 

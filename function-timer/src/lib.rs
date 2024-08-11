@@ -118,9 +118,10 @@
 //!     Ok(())
 //! }
 //! ```
+use std::time::Instant;
+
 pub use function_timer_macro::time;
 use metrics::histogram;
-use std::time::Instant;
 
 /// Timer.
 pub struct FunctionTimer {
@@ -138,7 +139,7 @@ impl FunctionTimer {
     /// * `metric_name` : name of the metric.
     /// * `struct_name` : name of the struct.
     /// * `function` : name of the function that have the annotation. It is used to generate
-    /// the tag `function`.
+    ///   the tag `function`.
     pub fn new(
         metric_name: &'static str,
         struct_name: Option<&'static str>,
