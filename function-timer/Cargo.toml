@@ -40,5 +40,5 @@ metrics = "0.24"
 [dev-dependencies]
 trybuild = "1.0"
 metrics-util = "0.18"
-metrics-exporter-prometheus = { version = "0.15", default-features = false }
+metrics-exporter-prometheus = { version = "0.16", default-features = false }
 futures-test = "0.3"
