@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3](https://github.com/Dalvany/function-timer/compare/function-timer-v0.9.2...function-timer-v0.9.3) - 2026-07-25
+
+### Other
+
+- update dependencies
+
 ## [0.9.2](https://github.com/Dalvany/function-timer/compare/function-timer-v0.9.1...function-timer-v0.9.2) - 2025-08-02
 
 ### Other
