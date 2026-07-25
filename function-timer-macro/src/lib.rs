@@ -141,6 +141,7 @@ impl Fold for MetricName {
             attrs: i.attrs,
             vis: i.vis,
             sig: i.sig,
+            modifiers: i.modifiers,
             block: Box::new(new_block),
         }
     }
