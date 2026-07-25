@@ -74,6 +74,7 @@ impl MetricName {
         };
         let mut statements: Vec<Stmt> = Vec::with_capacity(2);
 
+        #[allow(clippy::expect_used)]
         let macro_stmt: Stmt = syn::parse2(macro_stmt).expect("Can't parse token");
         statements.push(macro_stmt);
 

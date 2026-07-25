@@ -42,3 +42,11 @@ trybuild = "1.0"
 metrics-util = "0.20"
 metrics-exporter-prometheus = { version = "0.18", default-features = false }
 futures-test = "0.3"
+
+[lints.clippy]
+pedentic = "warn"
+print_stderr = "deny"
+print_stdout = "deny"
+indexing_slicing = "warn"
+unwrap_used = "warn"
+expect_used = "warn"

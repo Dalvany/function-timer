@@ -21,3 +21,11 @@ proc-macro = true
 syn = { version = "3.0", features = ["full", "fold"] }
 proc-macro2 = "1.0"
 quote = "1.0"
+
+[lints.clippy]
+pedentic = "warn"
+print_stderr = "deny"
+print_stdout = "deny"
+indexing_slicing = "warn"
+unwrap_used = "warn"
+expect_used = "warn"

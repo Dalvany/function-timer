@@ -1,3 +1,4 @@
+#![allow(clippy::print_stdout)]
 use function_timer::time;
 use metrics::Label;
 use metrics_util::debugging::DebugValue;
